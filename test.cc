@@ -10,7 +10,13 @@ using u32 = unsigned int;
 #define restrict __restrict__
 #endif
 
-extern "C" void* hlz_memcpy(
+extern "C" void* hedgy0_memcpy(
+          void * restrict dst,
+    const void * restrict src,
+    u64 size
+);
+
+extern "C" void* hedgy1_memcpy(
           void * restrict dst,
     const void * restrict src,
     u64 size
@@ -29,6 +35,7 @@ int main(void)
     /* Set buffer_size within range <1KB; 16MB + 1KB>. */
     buffer_size %= (1024 * 1024 * 16);
     buffer_size += 1024;
+    buffer_size = 100'000'000;
 
     pbuffer0 = malloc(buffer_size);
     if (!pbuffer0) {
@@ -47,10 +54,19 @@ int main(void)
         return 1;
     }
 
-    hlz_memcpy(pbuffer0, pbuffer1, buffer_size);
+    hedgy0_memcpy(pbuffer0, pbuffer1, buffer_size);
 
     if (memcmp(pbuffer0, pbuffer1, buffer_size)) {
-        fprintf(stderr, "memcmp failed\n");
+        fprintf(stderr, "memcmp failed %d\n", 0);
+        return 1;
+    }
+
+    memset(pbuffer0, 0, buffer_size);
+
+    hedgy1_memcpy(pbuffer0, pbuffer1, buffer_size);
+
+    if (memcmp(pbuffer0, pbuffer1, buffer_size)) {
+        fprintf(stderr, "memcmp failed %d\n", 1);
         return 1;
     }
 
