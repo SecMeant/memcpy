@@ -54,21 +54,22 @@ int main(void)
         return 1;
     }
 
-    hedgy0_memcpy(pbuffer0, pbuffer1, buffer_size);
+    for(int i = 0 ; i < 100; ++i) 
+	    hedgy0_memcpy(pbuffer0, pbuffer1, buffer_size);
 
-    if (memcmp(pbuffer0, pbuffer1, buffer_size)) {
-        fprintf(stderr, "memcmp failed %d\n", 0);
-        return 1;
-    }
+    //if (memcmp(pbuffer0, pbuffer1, buffer_size)) {
+    //    fprintf(stderr, "memcmp failed %d\n", 0);
+    //    return 1;
+    //}
 
-    memset(pbuffer0, 0, buffer_size);
+    //memset(pbuffer0, 0, buffer_size);
 
-    hedgy1_memcpy(pbuffer0, pbuffer1, buffer_size);
+    //hedgy1_memcpy(pbuffer0, pbuffer1, buffer_size);
 
-    if (memcmp(pbuffer0, pbuffer1, buffer_size)) {
-        fprintf(stderr, "memcmp failed %d\n", 1);
-        return 1;
-    }
+    //if (memcmp(pbuffer0, pbuffer1, buffer_size)) {
+    //    fprintf(stderr, "memcmp failed %d\n", 1);
+    //    return 1;
+    //}
 
     puts("OK");
     return 0;

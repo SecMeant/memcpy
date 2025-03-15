@@ -42,13 +42,11 @@ INLINE void memcpy_spec_(
         dst[i] = src[i];
 }
 
-template<>
-INLINE void memcpy_spec_<100'000'000UL>(
+INLINE void memcpy_long_(
           void * restrict dst_,
-    const void * restrict src_
+    const void * restrict src_,
+    u64 size
 ) {
-    u64 size = 100'000'000UL;
-
     const u64 misalign = 0x40UL - ((u64)dst_ & 0x3fULL);
 
           u8 * restrict dst_u8 = (      u8 * restrict) dst_;
@@ -72,19 +70,19 @@ INLINE void memcpy_spec_<100'000'000UL>(
     u32 i = 0;
 #pragma clang loop unroll(disable)
     while (i < num_elems) {
-	d0 = VECTOR_LOAD(src+0);
-	d1 = VECTOR_LOAD(src+1);
-	d2 = VECTOR_LOAD(src+2);
-	d3 = VECTOR_LOAD(src+3);
+        d0 = VECTOR_LOAD(src+0);
+        d1 = VECTOR_LOAD(src+1);
+        d2 = VECTOR_LOAD(src+2);
+        d3 = VECTOR_LOAD(src+3);
 
-	VECTOR_STORE(dst+0, d0);
-	VECTOR_STORE(dst+1, d1);
-	VECTOR_STORE(dst+2, d2);
-	VECTOR_STORE(dst+3, d3);
+        VECTOR_STORE(dst+0, d0);
+        VECTOR_STORE(dst+1, d1);
+        VECTOR_STORE(dst+2, d2);
+        VECTOR_STORE(dst+3, d3);
 
-	dst += 4;
-	src += 4;
-	++i;
+        dst += 4;
+        src += 4;
+        ++i;
     }
 
     memcpy_base_(dst, src, num_rest);
@@ -138,15 +136,10 @@ static void hedgy_memcpy_(
     u64 size
 ) {
     switch (size) {
-        CASE_MEMCPY_SPEC_(1UL)
-        CASE_MEMCPY_SPEC_(10UL)
-        CASE_MEMCPY_SPEC_(100UL)
-        CASE_MEMCPY_SPEC_(1000UL)
-        CASE_MEMCPY_SPEC_(10000UL)
-        CASE_MEMCPY_SPEC_(100000UL)
-        CASE_MEMCPY_SPEC_(1000000UL)
-        CASE_MEMCPY_SPEC_(10000000UL)
-        CASE_MEMCPY_SPEC_(100000000UL)
+        case 1UL ... 100UL:
+            return memcpy_base_(dst, src, size);
+        case 1'000UL ... 100'000'000UL:
+            return memcpy_long_(dst, src, size);
     default:
         return memcpy_base_(dst, src, size);
     }
